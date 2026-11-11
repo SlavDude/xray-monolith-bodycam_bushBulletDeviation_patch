@@ -102,15 +102,14 @@ static float svp_effective_zero(CWeapon& weapon,
 	const CSecondVPParams::SightSnapshot& sight, bool sight_valid,
 	float configured_zero)
 {
-	if (!sight_valid || configured_zero <= 0.f)
-		return configured_zero;
-
-	collide::rq_result hit;
-	const bool found = Level().ObjectSpace.RayPick(sight.position,
-		sight.direction, configured_zero, collide::rqtBoth, hit,
-		weapon.H_Parent());
-	return SvpProjectile::ResolveConvergenceDistance(configured_zero,
-		found, found ? hit.range : configured_zero);
+	// Fixed zero: the shot converges onto the sight line at the optic's configured
+	// zero distance only. It is no longer shortened to the first surface under the
+	// sight line, which also counts foliage that bullets pass through and tilted the
+	// shot upward when a bush was close.
+	(void)weapon;
+	(void)sight;
+	(void)sight_valid;
+	return configured_zero;
 }
 
 void CWeapon::UpdateSvpSwingEnvelope(CActor* pActor)
