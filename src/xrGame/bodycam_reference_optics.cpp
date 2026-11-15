@@ -157,7 +157,13 @@ void PublishOptics(CWeapon& weapon, std::optional<std::uint64_t>& failedRequest)
 {
 	static std::unique_ptr<SvpReferenceOpticsFrame> profile;
 	const auto request = Bodycam::GetMotionSelection().Requests();
-	if (!Bodycam::GetConfig().scope_effects_enable || failedRequest == request || !g_player_hud ||
+	// With scope effects off the packet is still published while the scope is not the
+	// aimed sight. There it serves the glass material alone, as it does with effects on
+	// (scope_reference_current() is false without an active scope image), so the glass
+	// is drawn and no optical image, capture or lens effect runs. While aiming it is
+	// cleared, which keeps the stock scope image.
+	const bool effects_off = !Bodycam::GetConfig().scope_effects_enable;
+	if ((effects_off && Device.m_SecondViewport.IsSVPActive()) || failedRequest == request || !g_player_hud ||
 		!pSettings->section_exist(kEffectsSection))
 	{
 		svp_reference_optics_clear();
